@@ -16,11 +16,18 @@ module Proj1 (initialGuess, nextGuess, GameState) where
 
     -- provide an initial guess for the game
     initialGuess    ::  ([String], GameState)
-    initialGuess = (["A1","B2","C3"], GameState [["A1","B2","C4"]])
+        -- enumerate all possible gamestates
+        -- return one as guess
+    initialGuess = (["A1","B2","C3"], GameState chords) where
+        chords = [[a,b,c] | a <- pitch, b <- pitch, c <- pitch, a < b, b < c]
+        pitch = [[n, o] | n <- ['A'..'G'], o <- ['1'..'3']]
 
     -- provide a next guess in the game based on the previous feedback
     nextGuess       ::  ([String], GameState) -> (Int, Int, Int) -> ([String], GameState)
-    nextGuess _ _ = (["A1","B2","C3"], GameState [["A1","B2","C4"]])
+    -- for all remaining guesses, calculate 
+    
+    nextGuess (pg, GameState s) (cor, not, oct) = (pg, GameState s)
+
 
     -- Compare target and guess strings and provide a 3-tuple response...
     -- ...of the correct pitch, note and octave respectively.
@@ -29,3 +36,7 @@ module Proj1 (initialGuess, nextGuess, GameState) where
         where   pitch = length (intersect target guess)
                 note = 3 - pitch - length (deleteFirstsBy (\p1 -> \p2 -> (p1 !! 0) == (p2 !! 0)) guess target)
                 octave = 3 - pitch - length (deleteFirstsBy (\p1 -> \p2 -> (p1 !! 1) == (p2 !! 1)) guess target)
+
+    -- unpack GameState
+    getState :: GameState -> [[String]]
+    getState (GameState x) = x
