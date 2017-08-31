@@ -26,7 +26,10 @@ module Proj1 (initialGuess, nextGuess, GameState) where
     nextGuess       ::  ([String], GameState) -> (Int, Int, Int) -> ([String], GameState)
     -- for all remaining guesses, calculate 
     
-    nextGuess (pg, GameState s) (cor, not, oct) = (pg, GameState s)
+    nextGuess (pg, GameState s) (cor, not, oct) = (gss, newGameState) where
+        newGameState = GameState updatedChords
+        updatedChords = delChord s pg
+        gss = updatedChords !! 0
 
 
     -- Compare target and guess strings and provide a 3-tuple response...
@@ -40,3 +43,9 @@ module Proj1 (initialGuess, nextGuess, GameState) where
     -- unpack GameState
     getState :: GameState -> [[String]]
     getState (GameState x) = x
+
+    -- delete a chord from list of chords
+    delChord :: [[String]] -> [String] -> [[String]]
+    delChord (x:xs) y
+        | null (x \\ y) = xs
+        | otherwise = x : delChord xs y
