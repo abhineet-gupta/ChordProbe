@@ -1,13 +1,25 @@
 #!/bin/bash
+# 
+# USAGE : <script> 21  
+#       Argument 1: number of pitches to test
+#           e.g. 21; min=4; max=21; default=21
+# REQUIREMENTS
+#   - python
+#   - Proj1Test in the same folder
+# 
+# DESC: Test all possible inputs for ChordProbe
+#
+# Declarative Programming, Project 1, S2 2017, UniMelb
+# Abhineet Gupta - abhineetg@student.unimelb.edu.au
+# -----------------------------------------------------
 
 # create array of all possible pitches (21 of them)
 PITCHES=($(for note in {A..G}; do for octave in {1..3}; do echo "$note$octave"; done; done))
 
 # max number of pitches to create combinations from
-# MIN: 3
-# MAX: 21
 # -1 due to zero-based indexing and last value in 'seq' being range inclusive
-MAX=$(($1-1))
+ARG=${1:-21}
+MAX=$(($ARG-1))
 
 for i in $(seq 0 $MAX)
 do
@@ -40,5 +52,5 @@ done
 AVG=$(echo print $total / $NUM_G.0 | python)
 
 echo ""
-echo "Average guesses: $AVG"
+echo "Avg #guesses/game : $AVG"
 echo ""
