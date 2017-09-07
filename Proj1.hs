@@ -17,6 +17,7 @@
 module Proj1 (initialGuess, nextGuess, GameState) where
 
     import Data.List
+    import Data.Maybe
 
     -- store the game state as a list of potential chords (3 strings)
     data GameState = GameState [[String]]
@@ -36,8 +37,8 @@ module Proj1 (initialGuess, nextGuess, GameState) where
     nextGuess (pg, GameState s) score = (gss, newGameState) where
         newGameState = GameState updatedChords
         updatedChords = delChord' s pg score
-        gss = updatedChords !! 0
-
+        gss = pickOne updatedChords
+        -- gss = updatedChords !! 0
     
     {- ============ HELPER FUNCTIONS ===================================== -}
     -- Compare target and guess strings and provide a 3-tuple response...
@@ -69,3 +70,51 @@ module Proj1 (initialGuess, nextGuess, GameState) where
     scoreComp :: (Int, Int, Int) -> (Int, Int, Int) -> Bool
     scoreComp (a, b, c) (x, y, z) = a==x && b==y && c==z
     
+    -- pickOne :: [[String]] -> [String]
+    -- for each `guess` in input (calculate the # of possible targets left)
+        -- for each `target` in input except current
+        --      calculate score1(guess, target)
+        --      for each `other` in input
+                --  matchcount[guess] = 0
+                --  if score1 == score(other, target)
+                    -- matchcount[guess] ++
+    -- return guess with min(matchcount[guess])
+
+    pickOne :: [[String]] -> [String]
+    -- for each `guess` in input (calculate it's expected remaining candidates, minimize)
+        -- for each `target` in input
+        --      calculate score`(guess, target)
+        --      flatten score (4a + 2b + a)
+        --      add to list
+    --      group, square and sum
+    --      add result to a expList
+    -- find idx of min value in expList
+    -- return input[idx]
+    pickOne input = input !! idx where
+        idx = fromJust (elemIndex (minimum expList) expList) where
+            expList = map (calcExpRemainCandidates input) input
+    
+    calcExpRemainCandidates :: [[String]] -> [String] -> Int
+    calcExpRemainCandidates states guess = groupSquareSum scoreList where
+        scoreList = map flattenScore tupleScoresList where
+            tupleScoresList = map (feedback' guess) states
+
+    flattenScore :: [Int] -> Int
+    flattenScore [x, y, z] = 4*x + 2*y + z
+
+
+    groupSquareSum :: [Int] -> Int
+    groupSquareSum x = sum $ map (^2) $map length $ group $ sort x
+
+    tupToList :: (Int, Int, Int) -> [Int]
+    tupToList (x, y, z) = [x,y,z]
+
+    feedback'        :: [String] -> [String] -> [Int]
+    feedback' target guess = [pitch, note, octave]
+        where   pitch = length (intersect target guess)
+
+                note = 3 - pitch - length (deleteFirstsBy 
+                    (\p1 -> \p2 -> (p1 !! 0) == (p2 !! 0)) guess target)
+
+                octave = 3 - pitch - length (deleteFirstsBy 
+                    (\p1 -> \p2 -> (p1 !! 1) == (p2 !! 1)) guess target)
